@@ -1,7 +1,14 @@
 const CHAVE_PERFIL = "skillmatch:perfil";
 
 export async function carregarVagas() {
-  const response = await fetch("./assets/data/vagas.json");
+  // fetch retorna uma Promise: a aplicação aguarda essa operação assíncrona.
+  const requisicao = new Promise((resolve, reject) => {
+    fetch("./assets/data/vagas.json")
+      .then(resolve)
+      .catch(reject);
+  });
+
+  const response = await requisicao;
 
   if (!response.ok) {
     throw new Error("Não foi possível carregar o catálogo de vagas.");

@@ -3,7 +3,8 @@ import {
   VagaFrontEnd,
   encontrarMelhorVaga,
   executarComCallback,
-  gerarRecomendacao
+  gerarRecomendacao,
+  perfilAtendeAlgumRequisito
 } from "./motor.js";
 
 import {
@@ -60,6 +61,9 @@ async function analisarPerfil(perfil) {
     const vagas = dados.map((dadosVaga) => new VagaFrontEnd(dadosVaga));
 
     const resultados = vagas.map((vaga) => vaga.calcularCompatibilidade(candidato));
+    const possuiVagaComTodosOsRequisitos = resultados.some((resultado) =>
+      perfilAtendeAlgumRequisito(candidato, resultado.vaga.requisitos)
+    );
 
     // Callback: recebe uma função para marcar cada resultado.
     const resultadosComCallback = executarComCallback(resultados, (resultado) => ({
@@ -71,7 +75,7 @@ async function analisarPerfil(perfil) {
     const estudos = gerarRecomendacao(resultadosComCallback);
     const numeroAnalise = contadorAnalises();
 
-    renderResumo(perfil, resultadosComCallback);
+    renderResumo(perfil, resultadosComCallback, possuiVagaComTodosOsRequisitos);
     renderVagas(resultadosComCallback);
     renderMelhorVaga(melhor);
     renderRecomendacao(estudos);
@@ -105,7 +109,7 @@ form.addEventListener("submit", async (event) => {
   await analisarPerfil(perfil);
 });
 
-document.querySelector("#clear-profile").addEventListener("click", () => {
+document.querySelector("#limpar-perfil").addEventListener("click", () => {
   removerPerfil();
   form.reset();
   document.querySelector("#area").value = "Desenvolvimento Web Front-End";
