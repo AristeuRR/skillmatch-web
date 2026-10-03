@@ -497,3 +497,119 @@ nav a {
 .status-success {
     color: var(--success);
 }
+
+.theme-toggle,
+.filter-field select {
+    font: inherit;
+}
+
+.theme-toggle {
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 0.45rem 0.75rem;
+    background: var(--surface);
+    color: var(--text);
+    font-weight: 700;
+}
+
+.theme-toggle:hover {
+    border-color: var(--primary);
+}
+
+.filters-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 0.75rem;
+}
+
+.filter-field {
+    flex: 1 1 240px;
+}
+
+.filter-field label {
+    display: block;
+    margin-bottom: 0.4rem;
+    font-weight: 800;
+}
+
+.filter-field select {
+    width: 100%;
+    padding: 0.7rem 0.8rem;
+    border: 1px solid var(--border);
+    border-radius: 0.6rem;
+    background: var(--surface);
+    color: var(--text);
+}
+
+.empty-list {
+    width: 100%;
+    margin: 0;
+    padding: 1.25rem;
+    border: 1px dashed var(--border);
+    border-radius: 0.75rem;
+    color: var(--muted);
+    background: var(--surface);
+}
+
+.brand img {
+    object-fit: contain;
+}
+
+[data-theme="dark"] {
+    --bg: #111827;
+    --surface: #1b2433;
+    --surface-alt: #151d2b;
+    --text: #eef2f7;
+    --muted: #b4bfce;
+    --primary: #8ea7ff;
+    --primary-dark: #b1c0ff;
+    --border: #354256;
+    --success: #6ee7a5;
+    --success-bg: #123b29;
+    --warning: #ffd166;
+    --warning-bg: #463711;
+    --danger: #ff8f8f;
+    --danger-bg: #4a1f25;
+    --focus: #ffd166;
+    --shadow: 0 0.75rem 2rem rgba(0, 0, 0, 0.28);
+}
+
+[data-theme="dark"] .site-header {
+    background: var(--surface);
+}
+
+[data-theme="dark"] .hero {
+    background: linear-gradient(135deg, #0b1020, #1e3357);
+}
+
+[data-theme="dark"] .field input[type="text"],
+[data-theme="dark"] .field input[type="number"] {
+    background: #111827;
+    color: var(--text);
+}
+
+[data-theme="dark"] .skill-option,
+[data-theme="dark"] .compatibility,
+[data-theme="dark"] .button-secondary {
+    background: #202b3c;
+    color: var(--text);
+}
+
+[data-theme="dark"] .skill-option:has(input:checked) {
+    background: #27375e;
+}
+
+[data-theme="dark"] .site-footer {
+    background: #090e18;
+}
+
+@media (min-width: 700px) {
+    .filters-bar {
+        align-items: end;
+    }
+}

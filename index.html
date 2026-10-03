@@ -22,6 +22,7 @@
                 <a href="#perfil">Meu perfil</a>
                 <a href="#vagas">Vagas</a>
                 <a href="#recomendacao">Recomendação</a>
+                <button class="theme-toggle" type="button" id="alternar-tema" aria-label="Alternar tema">🌙 Tema escuro</button>
             </nav>
         </div>
     </header>
@@ -121,6 +122,25 @@
 
                 <div id="estado-vagas" class="status-box" role="status" aria-live="polite">
                     Aguardando análise.
+                </div>
+
+                <div class="filters-bar" aria-label="Filtros e ordenação das vagas">
+                    <div class="filter-field">
+                        <label for="filtro-modalidade">Filtrar por modalidade</label>
+                        <select id="filtro-modalidade">
+                            <option value="todas">Todas</option>
+                            <option value="Remoto">Remoto</option>
+                            <option value="Híbrido">Híbrido</option>
+                        </select>
+                    </div>
+                    <div class="filter-field">
+                        <label for="ordenar-vagas">Ordenar vagas por</label>
+                        <select id="ordenar-vagas">
+                            <option value="compatibilidade">Compatibilidade (maior primeiro)</option>
+                            <option value="salario">Salário (maior primeiro)</option>
+                            <option value="modalidade">Modalidade (A-Z)</option>
+                        </select>
+                    </div>
                 </div>
 
                 <div id="vagas-lista" class="jobs-list" aria-live="polite"></div>

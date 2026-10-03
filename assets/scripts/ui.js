@@ -20,14 +20,21 @@ export function coletarPerfil() {
 export function validarPerfil(perfil) {
   limparErros();
   let valido = true;
+  const somenteLetras = /^[A-Za-zÀ-ÖØ-öø-ÿ]+(?:\s+[A-Za-zÀ-ÖØ-öø-ÿ]+)*$/;
 
   if (!perfil.nome) {
-    mostrarErro("nome", "Informe seu nome.");
+    mostrarErro("nome", "Informe seu nome usando somente letras e espaços.");
+    valido = false;
+  } else if (!somenteLetras.test(perfil.nome)) {
+    mostrarErro("nome", "Use somente letras e espaços para digitar seu nome.");
     valido = false;
   }
 
   if (!perfil.areaInteresse) {
-    mostrarErro("area", "Informe sua área de interesse.");
+    mostrarErro("area", "Informe sua área de interesse usando somente letras e espaços.");
+    valido = false;
+  } else if (!somenteLetras.test(perfil.areaInteresse)) {
+    mostrarErro("area", "Use somente letras e espaços para digitar sua área de interesse.");
     valido = false;
   }
 
@@ -64,10 +71,36 @@ export function preencherFormulario(perfil) {
 
   document.querySelector("#nome").value = perfil.nome ?? "";
   document.querySelector("#area").value = perfil.areaInteresse ?? "";
-  document.querySelector("#experiencia").value = perfil.tempoExperiencia ?? 0;
+  document.querySelector("#experiencia").value = perfil.tempoExperiencia ?? "";
 
   document.querySelectorAll('input[name="habilidade"]').forEach((input) => {
     input.checked = perfil.habilidades?.includes(input.value) ?? false;
+  });
+}
+
+export function limparFormularioVisual() {
+  form.reset();
+  limparErros();
+}
+
+export function configurarCamposDeTexto() {
+  ["nome", "area"].forEach((id) => {
+    const input = document.querySelector(`#${id}`);
+
+    input.addEventListener("input", () => {
+      const valorAnterior = input.value;
+      const valorLimpo = valorAnterior.replace(/[^A-Za-zÀ-ÖØ-öø-ÿ\s]/g, "");
+
+      if (valorAnterior !== valorLimpo) {
+        input.value = valorLimpo;
+        input.setAttribute("aria-invalid", "true");
+        document.querySelector(`#${id}-erro`).textContent =
+          "Somente letras e espaços são permitidos.";
+      } else if (valorLimpo.trim()) {
+        input.removeAttribute("aria-invalid");
+        document.querySelector(`#${id}-erro`).textContent = "";
+      }
+    });
   });
 }
 
@@ -96,6 +129,11 @@ export function renderResumo(perfil, resultados, possuiVagaComTodosOsRequisitos 
 
 export function renderVagas(resultados) {
   jobsList.innerHTML = "";
+
+  if (!resultados.length) {
+    jobsList.innerHTML = `<p class="empty-list">Nenhuma vaga corresponde aos filtros selecionados.</p>`;
+    return;
+  }
 
   for (let indice = 0; indice < resultados.length; indice += 1) {
     const resultado = resultados[indice];
@@ -178,8 +216,8 @@ export function renderRecomendacao(estudos) {
 }
 
 export function limparResultados() {
-  summary.textContent = "Preencha seu perfil para iniciar uma análise.";
   jobsList.innerHTML = "";
+  summary.textContent = "Preencha seu perfil para iniciar uma análise.";
   recommendation.innerHTML = "<p>Faça uma análise para receber sua recomendação.</p>";
 }
 
