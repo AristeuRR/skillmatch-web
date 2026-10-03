@@ -132,7 +132,7 @@ export function perfilAtendeAlgumRequisito(candidato, requisitos) {
   return requisitos.length > 0 && requisitos.every((requisito) => candidato.possuiHabilidade(requisito.nome));
 }
 
-export function encontrarMelhorVaga(resultados) {
+export function encontrarMelhorVaga(resultados, tempoExperiencia = 0) {
   if (!resultados.length) {
     return null;
   }
@@ -142,11 +142,17 @@ export function encontrarMelhorVaga(resultados) {
       return atual;
     }
 
-    if (
-      atual.percentual === melhor.percentual &&
-      atual.vaga.minExperience <= melhor.vaga.minExperience
-    ) {
-      return atual;
+    if (atual.percentual === melhor.percentual) {
+      const distanciaAtual = Math.abs(atual.vaga.minExperience - Number(tempoExperiencia));
+      const distanciaMelhor = Math.abs(melhor.vaga.minExperience - Number(tempoExperiencia));
+
+      if (distanciaAtual < distanciaMelhor) {
+        return atual;
+      }
+
+      if (distanciaAtual === distanciaMelhor && atual.vaga.minExperience < melhor.vaga.minExperience) {
+        return atual;
+      }
     }
 
     return melhor;
