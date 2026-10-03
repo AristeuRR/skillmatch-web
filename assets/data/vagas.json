@@ -1,71 +1,154 @@
 [
-    {
-        "id": 1,
-        "empresa": "CodeSphere",
-        "cargo": "Desenvolvedor Front-End Júnior",
-        "nivel": "Júnior",
-        "salario": "R$ 3.500 a R$ 4.500",
-        "modalidade": "Híbrido",
-        "requisitos": [
-            "JavaScript",
-            "HTML5",
-            "CSS3",
-            "Git",
-            "GitHub"
-        ],
-        "minExperiencia": 0
-    },
-    {
-        "id": 2,
-        "empresa": "Webnex",
-        "cargo": "Desenvolvedor Front-End Pleno",
-        "nivel": "Pleno",
-        "salario": "R$ 6.000 a R$ 8.000",
-        "modalidade": "Remoto",
-        "requisitos": [
-            "JavaScript",
-            "HTML5",
-            "CSS3",
-            "React",
-            "TypeScript",
-            "Git",
-            "APIs REST"
-        ],
-        "minExperiencia": 2
-    },
-    {
-        "id": 3,
-        "empresa": "Kodeon",
-        "cargo": "Desenvolvedor Front-End Sênior",
-        "nivel": "Sênior",
-        "salario": "R$ 10.000 a R$ 13.000",
-        "modalidade": "Remoto",
-        "requisitos": [
-            "JavaScript",
-            "HTML5",
-            "CSS3",
-            "React",
-            "TypeScript",
-            "Next.js",
-            "Git",
-            "APIs REST"
-        ],
-        "minExperiencia": 4
-    },
-    {
-        "id": 4,
-        "empresa": "PixelWorks",
-        "cargo": "Desenvolvedor UI / Front-End",
-        "nivel": "Júnior",
-        "salario": "R$ 3.800 a R$ 5.000",
-        "modalidade": "Híbrido",
-        "requisitos": [
-            "HTML5",
-            "CSS3",
-            "JavaScript",
-            "Git",
-            "UX/UI"
-        ],
-        "minExperiencia": 1
-    }
+  {
+    "id": 1,
+    "empresa": "CodeSphere",
+    "cargo": "Desenvolvedor Front-End Júnior",
+    "nivel": "Júnior",
+    "modalidade": "Híbrido",
+    "salario": "R$ 3.500 a R$ 4.500",
+    "minExperience": 0,
+    "requisitos": [
+      {
+        "nome": "JavaScript",
+        "peso": 3
+      },
+      {
+        "nome": "CSS3",
+        "peso": 1
+      },
+      {
+        "nome": "HTML5",
+        "peso": 1
+      },
+      {
+        "nome": "Git",
+        "peso": 1
+      },
+      {
+        "nome": "GitHub",
+        "peso": 1
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "empresa": "Webnex",
+    "cargo": "Desenvolvedor Front-End Pleno",
+    "nivel": "Pleno",
+    "modalidade": "Remoto",
+    "salario": "R$ 6.000 a R$ 8.000",
+    "minExperience": 2,
+    "requisitos": [
+      {
+        "nome": "React",
+        "peso": 3
+      },
+      {
+        "nome": "JavaScript",
+        "peso": 1
+      },
+      {
+        "nome": "TypeScript",
+        "peso": 3
+      },
+      {
+        "nome": "CSS3",
+        "peso": 1
+      },
+      {
+        "nome": "HTML5",
+        "peso": 1
+      },
+      {
+        "nome": "Git",
+        "peso": 1
+      },
+      {
+        "nome": "APIs REST",
+        "peso": 1
+      },
+      {
+        "nome": "UX/UI",
+        "peso": 1
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "empresa": "Kodeon",
+    "cargo": "Desenvolvedor Front-End Sênior",
+    "nivel": "Sênior",
+    "modalidade": "Remoto",
+    "salario": "R$ 10.000 a R$ 13.000",
+    "minExperience": 4,
+    "requisitos": [
+      {
+        "nome": "React",
+        "peso": 3
+      },
+      {
+        "nome": "TypeScript",
+        "peso": 3
+      },
+      {
+        "nome": "Next",
+        "peso": 3
+      },
+      {
+        "nome": "CSS3",
+        "peso": 1
+      },
+      {
+        "nome": "HTML5",
+        "peso": 1
+      },
+      {
+        "nome": "Git",
+        "peso": 1
+      },
+      {
+        "nome": "APIs REST",
+        "peso": 1
+      },
+      {
+        "nome": "Testes automatizados",
+        "peso": 1
+      },
+      {
+        "nome": "arquiteturaFront-End",
+        "peso": 3
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "empresa": "PixelWorks",
+    "cargo": "Desenvolvedor UI / Front-End",
+    "nivel": "Júnior",
+    "modalidade": "Híbrido",
+    "salario": "R$ 3.800 a R$ 5.000",
+    "minExperience": 1,
+    "requisitos": [
+      {
+        "nome": "HTML5",
+        "peso": 1
+      },
+      {
+        "nome": "CSS3",
+        "peso": 1
+      },
+      {
+        "nome": "JavaScript",
+        "peso": 1
+      },
+      {
+        "nome": "Git",
+        "peso": 1
+      },
+      {
+        "nome": "UX/UI",
+        "peso": 1
+      }
+    ]
+  }
 ]
