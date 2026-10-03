@@ -1,221 +1,236 @@
-function obterElementos() {
-    return {
-        form: document.querySelector("#perfil-form"),
-        nome: document.querySelector("#nome"),
-        area: document.querySelector("#area"),
-        experiencia: document.querySelector("#experiencia"),
-        habilidades: document.querySelectorAll('input[name="habilidade"]'),
-        vagasLista: document.querySelector("#vagas-lista"),
-        estadoVagas: document.querySelector("#estado-vagas"),
-        resultadoResumo: document.querySelector("#resultado-resumo"),
-        melhorVaga: document.querySelector("#melhor-vaga"),
-        formStatus: document.querySelector("#form-status"),
-        limparPerfil: document.querySelector("#limpar-perfil")
-    };
+const form = document.querySelector("#profile-form");
+const resultsStatus = document.querySelector("#results-status");
+const jobsList = document.querySelector("#jobs-list");
+const summary = document.querySelector("#summary");
+const recommendation = document.querySelector("#recommendation");
+const formStatus = document.querySelector("#form-status");
+
+export function coletarPerfil() {
+  const habilidades = [...document.querySelectorAll('input[name="skills"]:checked')]
+    .map((input) => input.value);
+
+  return {
+    nome: document.querySelector("#nome").value.trim(),
+    areaInteresse: document.querySelector("#area").value.trim(),
+    tempoExperiencia: Number(document.querySelector("#experiencia").value),
+    habilidades
+  };
 }
 
-function renderEstado(elemento, mensagem, tipo = "") {
-    elemento.className = `status-box ${tipo}`.trim();
-    elemento.textContent = mensagem;
+export function validarPerfil(perfil) {
+  limparErros();
+
+  let valido = true;
+
+  if (!perfil.nome) {
+    mostrarErro("nome", "Informe seu nome.");
+    valido = false;
+  }
+
+  if (!perfil.areaInteresse) {
+    mostrarErro("area", "Informe sua área de interesse.");
+    valido = false;
+  }
+
+  if (Number.isNaN(perfil.tempoExperiencia) || perfil.tempoExperiencia < 0) {
+    mostrarErro("experiencia", "Informe um tempo de experiência válido.");
+    valido = false;
+  }
+
+  if (!perfil.habilidades.length) {
+    document.querySelector("#skills-error").textContent =
+      "Selecione pelo menos uma habilidade.";
+    valido = false;
+  }
+
+  return valido;
+}
+
+function mostrarErro(campo, mensagem) {
+  document.querySelector(`#${campo}`).setAttribute("aria-invalid", "true");
+  document.querySelector(`#${campo}-error`).textContent = mensagem;
 }
 
 function limparErros() {
-    document.querySelectorAll(".field-error").forEach((elemento) => {
-        elemento.textContent = "";
-    });
+  ["nome", "area", "experiencia"].forEach((id) => {
+    document.querySelector(`#${id}`).removeAttribute("aria-invalid");
+    document.querySelector(`#${id}-error`).textContent = "";
+  });
+
+  document.querySelector("#skills-error").textContent = "";
 }
 
-function mostrarErro(id, mensagem) {
-    const elemento = document.querySelector(`#${id}`);
-    if (elemento) {
-        elemento.textContent = mensagem;
-    }
+export function preencherFormulario(perfil) {
+  if (!perfil) return;
+
+  document.querySelector("#nome").value = perfil.nome ?? "";
+  document.querySelector("#area").value = perfil.areaInteresse ?? "";
+  document.querySelector("#experiencia").value = perfil.tempoExperiencia ?? 0;
+
+  document.querySelectorAll('input[name="skills"]').forEach((input) => {
+    input.checked = perfil.habilidades?.includes(input.value) ?? false;
+  });
 }
 
-function coletarPerfil(elementos) {
-    return {
-        nome: elementos.nome.value.trim(),
-        area: elementos.area.value.trim(),
-        tempoExperiencia: Number(elementos.experiencia.value),
-        habilidades: Array.from(elementos.habilidades)
-            .filter((checkbox) => checkbox.checked)
-            .map((checkbox) => checkbox.value)
-    };
+export function renderEstado(mensagem, tipo = "info") {
+  resultsStatus.className = `status-panel status-${tipo}`;
+  resultsStatus.textContent = mensagem;
 }
 
-function validarPerfil(perfil) {
-    limparErros();
-
-    let valido = true;
-
-    if (!perfil.nome) {
-        mostrarErro("nome-erro", "Informe seu nome.");
-        valido = false;
-    }
-
-    if (!perfil.area) {
-        mostrarErro("area-erro", "Informe sua área de interesse.");
-        valido = false;
-    }
-
-    if (
-        Number.isNaN(perfil.tempoExperiencia) ||
-        perfil.tempoExperiencia < 0
-    ) {
-        mostrarErro(
-            "experiencia-erro",
-            "Informe um tempo de experiência válido."
-        );
-        valido = false;
-    }
-
-    if (perfil.habilidades.length === 0) {
-        mostrarErro(
-            "habilidades-erro",
-            "Selecione pelo menos uma habilidade."
-        );
-        valido = false;
-    }
-
-    return valido;
+export function renderFormularioStatus(mensagem, tipo = "info") {
+  formStatus.className = `status-message status-${tipo}`;
+  formStatus.textContent = mensagem;
 }
 
-function preencherFormulario(perfil, elementos) {
-    elementos.nome.value = perfil.nome || "";
-    elementos.area.value = perfil.area || "";
-    elementos.experiencia.value =
-        perfil.tempoExperiencia ?? "";
-
-    elementos.habilidades.forEach((checkbox) => {
-        checkbox.checked = perfil.habilidades?.includes(checkbox.value) ?? false;
-    });
+function formatarPercentual(valor) {
+  return `${valor.toFixed(1)}%`;
 }
 
-function classeCompatibilidade(classificacao) {
-    if (classificacao === "Alta compatibilidade") {
-        return "badge-high";
-    }
+function renderListaRequisitos(requisitos, classe) {
+  if (!requisitos.length) {
+    return `<p class="empty-list">Nenhum item nesta categoria.</p>`;
+  }
 
-    if (classificacao === "Média compatibilidade") {
-        return "badge-medium";
-    }
-
-    return "badge-low";
+  return `
+    <ul class="requirement-list ${classe}">
+      ${requisitos.map((requisito) => `
+        <li>
+          <span>${requisito.nome}</span>
+          <strong>Peso ${requisito.peso}</strong>
+        </li>
+      `).join("")}
+    </ul>
+  `;
 }
 
-function criarLista(itens, vazio) {
-    if (itens.length === 0) {
-        return `<li>${vazio}</li>`;
-    }
-
-    return itens.map((item) => `<li>${item}</li>`).join("");
+export function renderResumo(perfil, resultados) {
+  summary.innerHTML = `
+    <div class="profile-summary">
+      <div>
+        <span class="summary-label">Perfil analisado</span>
+        <strong>${perfil.nome}</strong>
+        <span>${perfil.areaInteresse} · ${perfil.tempoExperiencia} ano(s)</span>
+      </div>
+      <div>
+        <span class="summary-label">Habilidades</span>
+        <strong>${perfil.habilidades.length}</strong>
+        <span>selecionadas</span>
+      </div>
+      <div>
+        <span class="summary-label">Vagas analisadas</span>
+        <strong>${resultados.length}</strong>
+        <span>oportunidades</span>
+      </div>
+    </div>
+  `;
 }
 
-function renderVagas(resultados, elementos) {
-    if (resultados.length === 0) {
-        elementos.vagasLista.innerHTML = "";
-        renderEstado(
-            elementos.estadoVagas,
-            "Nada encontrado para exibir.",
-            "empty"
-        );
-        return;
-    }
+export function renderVagas(resultados) {
+  jobsList.innerHTML = resultados.map((resultado) => `
+    <article class="job-card">
+      <div class="job-top">
+        <div>
+          <p class="company">${resultado.vaga.empresa}</p>
+          <h3>${resultado.vaga.cargo}</h3>
+        </div>
+        <div class="compatibility">
+          <strong>${formatarPercentual(resultado.percentual)}</strong>
+          <span class="badge badge-${resultado.classificacao.split(" ")[0].toLowerCase()}">
+            ${resultado.classificacao}
+          </span>
+        </div>
+      </div>
 
-    renderEstado(
-        elementos.estadoVagas,
-        `${resultados.length} vagas analisadas.`
-    );
+      <div class="job-meta">
+        <span>${resultado.vaga.nivel}</span>
+        <span>${resultado.vaga.modalidade}</span>
+        <span>${resultado.vaga.salario}</span>
+        <span>Experiência mínima: ${resultado.vaga.minExperience} ano(s)</span>
+      </div>
 
-    elementos.vagasLista.innerHTML = resultados.map((resultado) => `
-        <article class="job-card">
-            <p class="job-company">${resultado.vaga.empresa}</p>
-            <h3>${resultado.vaga.cargo}</h3>
-            <p class="job-meta">
-                ${resultado.vaga.nivel} · ${resultado.vaga.modalidade} ·
-                ${resultado.vaga.salario}
-            </p>
+      <div class="score-detail">
+        <div>
+          <span>Pontos obtidos</span>
+          <strong>${resultado.pontosObtidos}</strong>
+        </div>
+        <div>
+          <span>Pontos máximos</span>
+          <strong>${resultado.pontosMaximos}</strong>
+        </div>
+        <div>
+          <span>Experiência</span>
+          <strong>${resultado.atendeExperienciaMinima ? "Atende" : "Abaixo"}</strong>
+        </div>
+      </div>
 
-            <div class="compatibility">
-                <strong>${resultado.percentual.toFixed(0)}%</strong>
-                <span class="badge ${classeCompatibilidade(resultado.classificacao)}">
-                    ${resultado.classificacao}
-                </span>
-            </div>
-
-            <p><strong>Experiência mínima:</strong>
-                ${resultado.vaga.minExperiencia} ano(s)
-            </p>
-
-            <div class="skills-result">
-                <h4>Habilidades encontradas</h4>
-                <ul>
-                    ${criarLista(resultado.encontradas, "Nenhuma habilidade encontrada.")}
-                </ul>
-            </div>
-
-            <div class="skills-result">
-                <h4>Habilidades faltantes</h4>
-                <ul>
-                    ${criarLista(resultado.faltantes, "Nenhuma habilidade faltante.")}
-                </ul>
-            </div>
-        </article>
-    `).join("");
+      <div class="requirements-columns">
+        <section>
+          <h4>Habilidades encontradas</h4>
+          ${renderListaRequisitos(resultado.encontrados, "found")}
+        </section>
+        <section>
+          <h4>Habilidades faltantes</h4>
+          ${renderListaRequisitos(resultado.faltantes, "missing")}
+        </section>
+      </div>
+    </article>
+  `).join("");
 }
 
-function renderMelhorVaga(melhor, recomendacoes, elementos) {
-    if (!melhor) {
-        elementos.melhorVaga.innerHTML =
-            "<p>Faça uma análise para receber sua recomendação.</p>";
-        return;
-    }
+export function renderMelhorVaga(melhor) {
+  if (!melhor) {
+    return;
+  }
 
-    const listaRecomendacoes = recomendacoes.length > 0
-        ? recomendacoes.map((item) =>
-            `<li><strong>${item.habilidade}</strong> — aparece como necessidade em ${item.quantidade} vaga(s).</li>`
-        ).join("")
-        : "<li>Seu perfil atende aos requisitos analisados. Continue praticando e aprofundando suas habilidades.</li>";
+  recommendation.innerHTML = `
+    <div class="recommendation-main">
+      <p class="eyebrow">MAIOR COMPATIBILIDADE</p>
+      <h3>${melhor.vaga.empresa} · ${melhor.vaga.cargo}</h3>
+      <p>
+        Esta vaga alcançou <strong>${formatarPercentual(melhor.percentual)}</strong>
+        pelo cálculo ponderado.
+      </p>
+      <div class="recommendation-score">
+        ${melhor.pontosObtidos} pontos de ${melhor.pontosMaximos}
+      </div>
+    </div>
+  `;
+}
 
-    elementos.melhorVaga.innerHTML = `
-        <h3>${melhor.vaga.empresa} — ${melhor.vaga.cargo}</h3>
-        <p>
-            Sua maior compatibilidade foi de
-            <strong>${melhor.percentual.toFixed(0)}%</strong>.
-        </p>
-        <p>
-            A recomendação considera as habilidades que mais se repetem
-            entre os requisitos ainda não dominados.
-        </p>
-        <ul>${listaRecomendacoes}</ul>
+export function renderRecomendacao(estudos) {
+  if (!estudos.length) {
+    recommendation.innerHTML += `
+      <div class="study-list">
+        <h3>Recomendação de estudo</h3>
+        <p>Seu perfil atende aos requisitos das vagas analisadas.</p>
+      </div>
     `;
+    return;
+  }
+
+  recommendation.innerHTML += `
+    <div class="study-list">
+      <h3>Habilidades para priorizar</h3>
+      <p>
+        A prioridade combina o <strong>peso</strong> dos requisitos faltantes
+        com a frequência em que eles aparecem nas vagas.
+      </p>
+      <ol>
+        ${estudos.map((item) => `
+          <li>
+            <span>${item.nome}</span>
+            <small>${item.ocorrencias} ocorrência(s) · prioridade ponderada ${item.prioridade}</small>
+          </li>
+        `).join("")}
+      </ol>
+    </div>
+  `;
 }
 
-function renderResumo(perfil, resultados, contador, elementos) {
-    const melhor = resultados.reduce(
-        (atual, resultado) =>
-            !atual || resultado.percentual > atual.percentual
-                ? resultado
-                : atual,
-        null
-    );
-
-    elementos.resultadoResumo.textContent =
-        `${perfil.nome}, foram analisadas ${resultados.length} vagas. ` +
-        `Análise nº ${contador}. ` +
-        (melhor
-            ? `Maior compatibilidade: ${melhor.vaga.empresa}.`
-            : "");
+export function limparResultados() {
+  summary.innerHTML = "";
+  jobsList.innerHTML = "";
+  recommendation.innerHTML = "<p>A recomendação aparecerá após a análise.</p>";
 }
 
-export {
-    obterElementos,
-    renderEstado,
-    limparErros,
-    coletarPerfil,
-    validarPerfil,
-    preencherFormulario,
-    renderVagas,
-    renderMelhorVaga,
-    renderResumo
-};
+export { form };
