@@ -1,142 +1,193 @@
 import {
-    VagaFrontEnd,
-    criarContadorAnalises,
-    executarComCallback,
-    encontrarMelhorVaga,
-    gerarRecomendacao
+  Candidato,
+  VagaFrontEnd,
+  encontrarMelhorVaga,
+  executarComCallback,
+  gerarRecomendacao,
+  perfilAtendeAlgumRequisito
 } from "./motor.js";
 
 import {
-    carregarVagas,
-    salvarPerfil,
-    carregarPerfil,
-    removerPerfil
+  carregarVagas,
+  salvarPerfil,
+  carregarPerfil,
+  removerPerfil
 } from "./dados.js";
 
 import {
-    obterElementos,
-    renderEstado,
-    coletarPerfil,
-    validarPerfil,
-    preencherFormulario,
-    renderVagas,
-    renderMelhorVaga,
-    renderResumo
+  form,
+  coletarPerfil,
+  validarPerfil,
+  preencherFormulario,
+  renderEstado,
+  renderFormularioStatus,
+  renderResumo,
+  renderVagas,
+  renderMelhorVaga,
+  renderRecomendacao,
+  limparResultados,
+  limparFormularioVisual,
+  configurarCamposDeTexto
 } from "./ui.js";
 
-const elementos = obterElementos();
-const registrarAnalise = criarContadorAnalises();
+const contadorAnalises = criarContadorAnalises();
+const CHAVE_TEMA = "skillmatch:tema";
+let resultadosAtuais = [];
 
-async function analisarPerfil(perfil) {
-    renderEstado(
-        elementos.estadoVagas,
-        "Carregando vagas…",
-        "loading"
-    );
+function criarContadorAnalises() {
+  let total = 0;
 
-    elementos.vagasLista.innerHTML = "";
-    elementos.formStatus.textContent = "Buscando vagas para comparar seu perfil…";
-
-    try {
-        const dadosVagas = await carregarVagas();
-
-        if (dadosVagas.length === 0) {
-            renderEstado(
-                elementos.estadoVagas,
-                "Nada encontrado: o catálogo de vagas está vazio.",
-                "empty"
-            );
-            elementos.formStatus.textContent = "";
-            return;
-        }
-
-        // O JSON é transformado em instâncias da classe antes da análise.
-        const vagas = dadosVagas.map(
-            (dados) => new VagaFrontEnd(dados)
-        );
-
-        const resultados = vagas.map(
-            (vaga) => vaga.calcularCompatibilidade(perfil)
-        );
-
-        renderVagas(resultados, elementos);
-
-        // Callback: a função passada ao executarComCallback
-        // controla uma ação para cada resultado.
-        executarComCallback(resultados, (resultado) => {
-            resultado.vaga.analisada = true;
-        });
-
-        const melhor = encontrarMelhorVaga(resultados, perfil);
-        const recomendacoes = gerarRecomendacao(resultados);
-        const contador = registrarAnalise();
-
-        renderMelhorVaga(
-            melhor,
-            recomendacoes,
-            elementos
-        );
-
-        renderResumo(
-            perfil,
-            resultados,
-            contador,
-            elementos
-        );
-
-        elementos.formStatus.textContent =
-            "Análise concluída. Seu perfil foi salvo neste navegador.";
-    } catch (erro) {
-        renderEstado(
-            elementos.estadoVagas,
-            "Não foi possível carregar as vagas. Verifique o servidor local e tente novamente.",
-            "error"
-        );
-
-        elementos.formStatus.textContent =
-            `Erro: ${erro.message}`;
-    }
+  return () => {
+    total += 1;
+    return total;
+  };
 }
 
-elementos.form.addEventListener("submit", async (evento) => {
-    evento.preventDefault();
+async function analisarPerfil(perfil) {
+  renderEstado("Carregando vagas...", "loading");
+  renderFormularioStatus("Buscando o catálogo de vagas...");
 
-    const perfil = coletarPerfil(elementos);
+  try {
+    const dados = await carregarVagas();
 
-    if (!validarPerfil(perfil)) {
-        elementos.formStatus.textContent =
-            "Corrija os campos indicados antes de continuar.";
-        return;
+    if (!dados.length) {
+      renderEstado("Nenhuma vaga disponível no momento.", "empty");
+      return;
     }
 
-    salvarPerfil(perfil);
-    await analisarPerfil(perfil);
-});
-
-elementos.limparPerfil.addEventListener("click", () => {
-    removerPerfil();
-    elementos.form.reset();
-
-    elementos.vagasLista.innerHTML = "";
-    elementos.resultadoResumo.textContent =
-        "Preencha seu perfil para iniciar uma análise.";
-
-    elementos.melhorVaga.innerHTML =
-        "<p>Faça uma análise para receber sua recomendação.</p>";
-
-    renderEstado(
-        elementos.estadoVagas,
-        "Perfil removido. Aguardando nova análise."
+    const candidato = new Candidato(
+      perfil.nome,
+      perfil.areaInteresse,
+      perfil.tempoExperiencia,
+      perfil.habilidades
     );
 
-    elementos.formStatus.textContent =
-        "Perfil salvo removido deste navegador.";
+    const vagas = dados.map((dadosVaga) => new VagaFrontEnd(dadosVaga));
+
+    const resultados = vagas.map((vaga) => vaga.calcularCompatibilidade(candidato));
+    resultadosAtuais = resultados;
+    const possuiVagaComTodosOsRequisitos = resultados.some((resultado) =>
+      perfilAtendeAlgumRequisito(candidato, resultado.vaga.requisitos)
+    );
+
+    // Callback: recebe uma função para marcar cada resultado.
+    const resultadosComCallback = executarComCallback(resultados, (resultado) => ({
+      ...resultado,
+      analisado: true
+    }));
+
+    const melhor = encontrarMelhorVaga(resultadosComCallback, candidato.tempoExperiencia);
+    const estudos = gerarRecomendacao(resultadosComCallback);
+    const numeroAnalise = contadorAnalises();
+
+    renderResumo(perfil, resultadosComCallback, possuiVagaComTodosOsRequisitos);
+    renderVagas(aplicarFiltrosEOrdenacao(resultadosComCallback));
+    renderMelhorVaga(melhor);
+    renderRecomendacao(estudos);
+
+    renderEstado(
+      `Análise ${numeroAnalise} concluída: ${resultadosComCallback.length} vagas processadas.`,
+      "success"
+    );
+    renderFormularioStatus("Perfil analisado e salvo com sucesso.", "success");
+  } catch (erro) {
+    limparResultados();
+    renderEstado(
+      `Não foi possível concluir a análise. ${erro.message}`,
+      "error"
+    );
+    renderFormularioStatus("Ocorreu um erro ao carregar as vagas.", "error");
+  }
+}
+
+form.addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  const perfil = coletarPerfil();
+
+  if (!validarPerfil(perfil)) {
+    renderFormularioStatus("Revise os campos destacados.", "error");
+    return;
+  }
+
+  salvarPerfil(perfil);
+  await analisarPerfil(perfil);
+});
+
+document.querySelector("#limpar-perfil").addEventListener("click", () => {
+  removerPerfil();
+  limparFormularioVisual();
+  resultadosAtuais = [];
+  document.querySelector("#filtro-modalidade").value = "todas";
+  document.querySelector("#ordenar-vagas").value = "compatibilidade";
+  limparResultados();
+  renderEstado("Perfil removido. Todos os campos foram limpos.", "info");
+  renderFormularioStatus("Dados salvos removidos e formulário limpo.");
 });
 
 const perfilSalvo = carregarPerfil();
 
 if (perfilSalvo) {
-    preencherFormulario(perfilSalvo, elementos);
-    elementos.formStatus.textContent =
-        "Perfil recuperado do armazenamento local. Clique em “Analisar vagas” para atualizar os resultados.";
+  preencherFormulario(perfilSalvo);
+  analisarPerfil(perfilSalvo);
 }
+
+
+function obterSalarioMinimo(salario) {
+  const valores = String(salario).match(/[\d.]+(?:,\d+)?/g) ?? [];
+  if (!valores.length) return 0;
+  return Number(valores[0].replace(/\./g, "").replace(",", "."));
+}
+
+function aplicarFiltrosEOrdenacao(resultados) {
+  const modalidade = document.querySelector("#filtro-modalidade").value;
+  const ordenacao = document.querySelector("#ordenar-vagas").value;
+
+  const filtrados = resultados.filter((resultado) =>
+    modalidade === "todas" || resultado.vaga.modalidade === modalidade
+  );
+
+  return [...filtrados].sort((a, b) => {
+    if (ordenacao === "salario") {
+      return obterSalarioMinimo(b.vaga.salario) - obterSalarioMinimo(a.vaga.salario);
+    }
+
+    if (ordenacao === "modalidade") {
+      return a.vaga.modalidade.localeCompare(b.vaga.modalidade, "pt-BR");
+    }
+
+    return b.percentual - a.percentual;
+  });
+}
+
+function atualizarListaDeVagas() {
+  if (!resultadosAtuais.length) return;
+  renderVagas(aplicarFiltrosEOrdenacao(resultadosAtuais));
+}
+
+function configurarTema() {
+  const botao = document.querySelector("#alternar-tema");
+  const temaSalvo = localStorage.getItem(CHAVE_TEMA);
+  const temaInicial = temaSalvo === "dark" ? "dark" : "light";
+
+  document.documentElement.dataset.theme = temaInicial;
+  atualizarTextoTema(temaInicial);
+
+  botao.addEventListener("click", () => {
+    const novoTema = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+    document.documentElement.dataset.theme = novoTema;
+    localStorage.setItem(CHAVE_TEMA, novoTema);
+    atualizarTextoTema(novoTema);
+  });
+}
+
+function atualizarTextoTema(tema) {
+  const botao = document.querySelector("#alternar-tema");
+  botao.textContent = tema === "dark" ? "☀️ Tema claro" : "🌙 Tema escuro";
+  botao.setAttribute("aria-label", tema === "dark" ? "Ativar tema claro" : "Ativar tema escuro");
+}
+
+document.querySelector("#filtro-modalidade").addEventListener("change", atualizarListaDeVagas);
+document.querySelector("#ordenar-vagas").addEventListener("change", atualizarListaDeVagas);
+configurarCamposDeTexto();
+configurarTema();

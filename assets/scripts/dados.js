@@ -1,47 +1,47 @@
 const CHAVE_PERFIL = "skillmatch:perfil";
 
-async function carregarVagas() {
-    const response = await fetch("./assets/data/vagas.json");
+export async function carregarVagas() {
+  // fetch retorna uma Promise: a aplicação aguarda essa operação assíncrona.
+  const requisicao = new Promise((resolve, reject) => {
+    fetch("./assets/data/vagas.json")
+      .then(resolve)
+      .catch(reject);
+  });
 
-    if (!response.ok) {
-        throw new Error(`Não foi possível carregar as vagas (${response.status}).`);
-    }
+  const response = await requisicao;
 
-    const dados = await response.json();
+  if (!response.ok) {
+    throw new Error("Não foi possível carregar o catálogo de vagas.");
+  }
 
-    if (!Array.isArray(dados) || dados.length === 0) {
-        return [];
-    }
+  const vagas = await response.json();
 
-    return dados;
+  if (!Array.isArray(vagas) || vagas.length === 0) {
+    return [];
+  }
+
+  return vagas;
 }
 
-function salvarPerfil(perfil) {
-    localStorage.setItem(CHAVE_PERFIL, JSON.stringify(perfil));
+export function salvarPerfil(perfil) {
+  localStorage.setItem(CHAVE_PERFIL, JSON.stringify(perfil));
 }
 
-function carregarPerfil() {
-    const perfilSalvo = localStorage.getItem(CHAVE_PERFIL);
+export function carregarPerfil() {
+  const perfilSalvo = localStorage.getItem(CHAVE_PERFIL);
 
-    if (!perfilSalvo) {
-        return null;
-    }
+  if (!perfilSalvo) {
+    return null;
+  }
 
-    try {
-        return JSON.parse(perfilSalvo);
-    } catch {
-        localStorage.removeItem(CHAVE_PERFIL);
-        return null;
-    }
-}
-
-function removerPerfil() {
+  try {
+    return JSON.parse(perfilSalvo);
+  } catch {
     localStorage.removeItem(CHAVE_PERFIL);
+    return null;
+  }
 }
 
-export {
-    carregarVagas,
-    salvarPerfil,
-    carregarPerfil,
-    removerPerfil
-};
+export function removerPerfil() {
+  localStorage.removeItem(CHAVE_PERFIL);
+}
