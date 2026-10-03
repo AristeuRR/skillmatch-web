@@ -128,6 +128,10 @@ export function executarComCallback(resultados, callback) {
   return resultados.map((resultado) => callback(resultado));
 }
 
+export function perfilAtendeAlgumRequisito(candidato, requisitos) {
+  return requisitos.length > 0 && requisitos.every((requisito) => candidato.possuiHabilidade(requisito.nome));
+}
+
 export function encontrarMelhorVaga(resultados) {
   if (!resultados.length) {
     return null;
