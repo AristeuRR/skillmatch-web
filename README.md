@@ -158,11 +158,9 @@ Prepare um vídeo de até 7 minutos apresentando o objetivo, a execução da apl
 
 **Link do vídeo:** `COLE_AQUI_O_LINK_DO_VIDEO`
 
-## 14. GitHub e AVA
+## 14. Publicação
 
 **Repositório:** `COLE_AQUI_O_LINK_DO_GITHUB`
-
-Após publicar o repositório e o vídeo, atualize os links acima e faça a submissão no AVA.
 
 ## 15. Melhorias futuras
 
