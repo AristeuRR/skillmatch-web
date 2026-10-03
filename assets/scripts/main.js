@@ -1,142 +1,123 @@
 import {
-    VagaFrontEnd,
-    criarContadorAnalises,
-    executarComCallback,
-    encontrarMelhorVaga,
-    gerarRecomendacao
+  Candidato,
+  VagaFrontEnd,
+  encontrarMelhorVaga,
+  executarComCallback,
+  gerarRecomendacao
 } from "./motor.js";
 
 import {
-    carregarVagas,
-    salvarPerfil,
-    carregarPerfil,
-    removerPerfil
+  carregarVagas,
+  salvarPerfil,
+  carregarPerfil,
+  removerPerfil
 } from "./dados.js";
 
 import {
-    obterElementos,
-    renderEstado,
-    coletarPerfil,
-    validarPerfil,
-    preencherFormulario,
-    renderVagas,
-    renderMelhorVaga,
-    renderResumo
+  form,
+  coletarPerfil,
+  validarPerfil,
+  preencherFormulario,
+  renderEstado,
+  renderFormularioStatus,
+  renderResumo,
+  renderVagas,
+  renderMelhorVaga,
+  renderRecomendacao,
+  limparResultados
 } from "./ui.js";
 
-const elementos = obterElementos();
-const registrarAnalise = criarContadorAnalises();
+const contadorAnalises = criarContadorAnalises();
 
-async function analisarPerfil(perfil) {
-    renderEstado(
-        elementos.estadoVagas,
-        "Carregando vagas…",
-        "loading"
-    );
+function criarContadorAnalises() {
+  let total = 0;
 
-    elementos.vagasLista.innerHTML = "";
-    elementos.formStatus.textContent = "Buscando vagas para comparar seu perfil…";
-
-    try {
-        const dadosVagas = await carregarVagas();
-
-        if (dadosVagas.length === 0) {
-            renderEstado(
-                elementos.estadoVagas,
-                "Nada encontrado: o catálogo de vagas está vazio.",
-                "empty"
-            );
-            elementos.formStatus.textContent = "";
-            return;
-        }
-
-        // O JSON é transformado em instâncias da classe antes da análise.
-        const vagas = dadosVagas.map(
-            (dados) => new VagaFrontEnd(dados)
-        );
-
-        const resultados = vagas.map(
-            (vaga) => vaga.calcularCompatibilidade(perfil)
-        );
-
-        renderVagas(resultados, elementos);
-
-        // Callback: a função passada ao executarComCallback
-        // controla uma ação para cada resultado.
-        executarComCallback(resultados, (resultado) => {
-            resultado.vaga.analisada = true;
-        });
-
-        const melhor = encontrarMelhorVaga(resultados, perfil);
-        const recomendacoes = gerarRecomendacao(resultados);
-        const contador = registrarAnalise();
-
-        renderMelhorVaga(
-            melhor,
-            recomendacoes,
-            elementos
-        );
-
-        renderResumo(
-            perfil,
-            resultados,
-            contador,
-            elementos
-        );
-
-        elementos.formStatus.textContent =
-            "Análise concluída. Seu perfil foi salvo neste navegador.";
-    } catch (erro) {
-        renderEstado(
-            elementos.estadoVagas,
-            "Não foi possível carregar as vagas. Verifique o servidor local e tente novamente.",
-            "error"
-        );
-
-        elementos.formStatus.textContent =
-            `Erro: ${erro.message}`;
-    }
+  return () => {
+    total += 1;
+    return total;
+  };
 }
 
-elementos.form.addEventListener("submit", async (evento) => {
-    evento.preventDefault();
+async function analisarPerfil(perfil) {
+  renderEstado("Carregando vagas...", "loading");
+  renderFormularioStatus("Buscando o catálogo de vagas...");
 
-    const perfil = coletarPerfil(elementos);
+  try {
+    const dados = await carregarVagas();
 
-    if (!validarPerfil(perfil)) {
-        elementos.formStatus.textContent =
-            "Corrija os campos indicados antes de continuar.";
-        return;
+    if (!dados.length) {
+      renderEstado("Nenhuma vaga disponível no momento.", "empty");
+      return;
     }
 
-    salvarPerfil(perfil);
-    await analisarPerfil(perfil);
-});
-
-elementos.limparPerfil.addEventListener("click", () => {
-    removerPerfil();
-    elementos.form.reset();
-
-    elementos.vagasLista.innerHTML = "";
-    elementos.resultadoResumo.textContent =
-        "Preencha seu perfil para iniciar uma análise.";
-
-    elementos.melhorVaga.innerHTML =
-        "<p>Faça uma análise para receber sua recomendação.</p>";
-
-    renderEstado(
-        elementos.estadoVagas,
-        "Perfil removido. Aguardando nova análise."
+    const candidato = new Candidato(
+      perfil.nome,
+      perfil.areaInteresse,
+      perfil.tempoExperiencia,
+      perfil.habilidades
     );
 
-    elementos.formStatus.textContent =
-        "Perfil salvo removido deste navegador.";
+    const vagas = dados.map((dadosVaga) => new VagaFrontEnd(dadosVaga));
+
+    const resultados = vagas.map((vaga) => vaga.calcularCompatibilidade(candidato));
+
+    // Callback: recebe uma função para marcar cada resultado.
+    const resultadosComCallback = executarComCallback(resultados, (resultado) => ({
+      ...resultado,
+      analisado: true
+    }));
+
+    const melhor = encontrarMelhorVaga(resultadosComCallback);
+    const estudos = gerarRecomendacao(resultadosComCallback);
+    const numeroAnalise = contadorAnalises();
+
+    renderResumo(perfil, resultadosComCallback);
+    renderVagas(resultadosComCallback);
+    renderMelhorVaga(melhor);
+    renderRecomendacao(estudos);
+
+    renderEstado(
+      `Análise ${numeroAnalise} concluída: ${resultadosComCallback.length} vagas processadas.`,
+      "success"
+    );
+    renderFormularioStatus("Perfil analisado e salvo com sucesso.", "success");
+  } catch (erro) {
+    limparResultados();
+    renderEstado(
+      `Não foi possível concluir a análise. ${erro.message}`,
+      "error"
+    );
+    renderFormularioStatus("Ocorreu um erro ao carregar as vagas.", "error");
+  }
+}
+
+form.addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  const perfil = coletarPerfil();
+
+  if (!validarPerfil(perfil)) {
+    renderFormularioStatus("Revise os campos destacados.", "error");
+    return;
+  }
+
+  salvarPerfil(perfil);
+  await analisarPerfil(perfil);
+});
+
+document.querySelector("#clear-profile").addEventListener("click", () => {
+  removerPerfil();
+  form.reset();
+  document.querySelector("#area").value = "Desenvolvimento Web Front-End";
+  document.querySelector("#experiencia").value = "1";
+  limparResultados();
+  renderEstado("Perfil removido. Preencha o formulário para uma nova análise.", "info");
+  renderFormularioStatus("Dados salvos removidos.");
 });
 
 const perfilSalvo = carregarPerfil();
 
 if (perfilSalvo) {
-    preencherFormulario(perfilSalvo, elementos);
-    elementos.formStatus.textContent =
-        "Perfil recuperado do armazenamento local. Clique em “Analisar vagas” para atualizar os resultados.";
+  preencherFormulario(perfilSalvo);
+  analisarPerfil(perfilSalvo);
 }
