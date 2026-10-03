@@ -1,247 +1,184 @@
 # SkillMatch Web
 
-Aplicação web acadêmica para análise de compatibilidade entre o perfil profissional de uma pessoa candidata e vagas de desenvolvimento Front-End.
+Aplicação Single Page em **HTML5 + CSS3 + JavaScript puro** que compara um perfil profissional com vagas fictícias de Front-End. O projeto reaproveita o motor do Mini-Projeto SkillMatch JS e o transforma em uma aplicação web com formulário, DOM, `fetch`, `localStorage`, módulos ES, POO, callback, closure e cálculo de compatibilidade ponderado.
 
-## Objetivo
+> **Escopo:** sem React, Vue, Angular, TypeScript, Vite, Webpack, Babel, Axios, jQuery, back-end, banco de dados ou CSS Grid. O layout usa Flexbox.
 
-O SkillMatch transforma o motor de compatibilidade desenvolvido no projeto anterior em uma Single Page Application feita com HTML, CSS e JavaScript puro.
+## 1. Objetivo
 
-A aplicação permite:
+O usuário informa nome, área, experiência e habilidades. O sistema carrega um catálogo de vagas por `fetch`, transforma os objetos JSON em instâncias das classes do motor, calcula a compatibilidade, classifica cada vaga, mostra habilidades encontradas e faltantes, destaca a maior compatibilidade e recomenda estudos.
 
-- preencher um perfil profissional;
-- informar habilidades e tempo de experiência;
-- carregar vagas a partir de um arquivo JSON usando `fetch`;
-- calcular a compatibilidade com cada vaga;
-- separar habilidades encontradas e faltantes;
-- classificar a compatibilidade em Alta, Média ou Baixa;
-- identificar a vaga de maior compatibilidade;
-- gerar uma recomendação de estudo;
-- salvar o perfil no `localStorage`;
-- recuperar o perfil em uma nova visita;
-- apresentar uma interface responsiva, semântica e acessível.
+## 2. Compatibilidade ponderada
 
-## Tecnologias
+Cada requisito do JSON possui um peso. Requisitos estratégicos recebem **3** e requisitos de apoio recebem **1**.
 
-- HTML5 semântico
-- CSS3
-- JavaScript
-- DOM e eventos
-- Flexbox
-- ES Modules (`import` / `export`)
-- Fetch API
-- Promise / async / await
-- LocalStorage
-- Git e GitHub
+`Compatibilidade = (pontos obtidos / pontos máximos) × 100`
 
-Não foram utilizados React, TypeScript, Vite, Webpack, Bootstrap, jQuery, Axios, CSS Grid ou back-end.
+Classificação exigida pelo projeto:
+- **80–100%:** Alta
+- **50–79%:** Média
+- **0–49%:** Baixa
 
-## Estrutura
+A experiência mínima da vaga também é exibida e participa do critério de desempate da melhor vaga quando os percentuais são iguais.
+
+## 3. Recomendação de estudo
+
+As habilidades faltantes são agrupadas. A prioridade considera o peso acumulado da habilidade nas vagas e, em caso de empate, a frequência de ocorrência. Assim o critério fica explícito e reproduzível.
+
+## 4. POO
+
+- `Pessoa`: classe base com `constructor` e método `apresentar()`.
+- `Candidato extends Pessoa`: acrescenta área, experiência e habilidades.
+- `Vaga`: contém empresa, cargo, requisitos, salário, modalidade, experiência mínima e o método `calcularCompatibilidade()`.
+- `VagaFrontEnd extends Vaga`: especializa a vaga com `stack` e sobrescreve `obterRotulo()`. A herança representa uma especialização real do domínio.
+
+## 5. Métodos e conceitos de JavaScript
+
+O projeto demonstra: `const`, `let`, `var` explicado no README, strings, números, booleanos, arrays, objetos, `if/else`, operadores lógicos/matemáticos, `for`, `map`, `filter`, `every`, `reduce`, `flatMap`, arrow functions, funções, classes, construtores, `this`, herança, callback, closure, Promise, `async/await`, DOM, eventos, `classList`, `createElement`, `innerHTML`, `preventDefault`, `localStorage` e módulos ES.
+
+### Onde aparecem
+
+- `motor.js`: regras, classes, cálculo ponderado, classificação, callback, closure e métodos de array.
+- `ui.js`: coleta/validação do formulário, `classList`, `createElement` e renderização dinâmica.
+- `dados.js`: `fetch`, Promise, `async/await`, `response.ok` e `localStorage`.
+- `main.js`: orquestração, eventos e integração entre módulos.
+
+## 6. Fetch e os três estados
+
+`assets/data/vagas.json` é o catálogo local. O navegador atua como cliente e solicita o recurso com `fetch`. A aplicação trata explicitamente:
+
+1. **Carregando:** mensagem de carregamento.
+2. **Vazio:** catálogo sem vagas.
+3. **Erro:** falha de rede ou resposta não OK, tratada com `try/catch`.
+4. **Sucesso:** transformação do JSON em instâncias de `VagaFrontEnd` e renderização dos cards.
+
+Isso demonstra a ideia de arquitetura cliente-servidor sem criar back-end, conforme o escopo do projeto.
+
+## 7. Persistência
+
+O perfil é salvo com `localStorage.setItem()` e `JSON.stringify()`. Na abertura, `getItem()` e `JSON.parse()` recuperam o perfil. A primeira visita é tratada quando o retorno é `null`. Nenhum dado sensível é armazenado.
+
+## 8. HTML, acessibilidade e SEO
+
+A página possui `lang="pt-BR"`, `header`, `nav`, `main`, `section`, `footer`, um único `h1`, `label/for`, `alt` no logo, `title`, `meta description`, mensagens `aria-live`, `aria-invalid` nos erros e foco visível para teclado.
+
+## 9. Responsividade
+
+O CSS foi estruturado **mobile-first**: a regra base atende telas pequenas e `@media (min-width: 700px)` amplia o layout. O projeto usa Flexbox, `clamp()`, porcentagens, `max-width`, `max-width: 100%` e `object-fit` para imagens e media query. Não usa CSS Grid.
+
+## 10. Estrutura
 
 ```text
 skillmatch-web/
 ├── index.html
 ├── README.md
+├── planejamento/
+│   └── tarefas-kanban.md
 └── assets/
     ├── data/
     │   └── vagas.json
     ├── img/
     │   └── logo.svg
     ├── scripts/
-    │   ├── dados.js
     │   ├── main.js
     │   ├── motor.js
-    │   └── ui.js
+    │   ├── ui.js
+    │   └── dados.js
     └── styles/
         └── index.style.css
 ```
 
-## Como executar
+## 11. Como executar
 
-1. Baixe ou clone o repositório.
-2. Abra a pasta no VS Code.
-3. Instale/ative a extensão Live Server.
-4. Abra o `index.html` usando o Live Server.
-5. Preencha o formulário e clique em **Analisar vagas**.
+Como há módulos ES e `fetch`, não abra o arquivo diretamente com `file://`.
 
-O projeto não deve ser aberto diretamente como `file://`, porque usa módulos ES e `fetch`.
+1. Abra a pasta no VS Code.
+2. Instale/ative a extensão **Live Server**.
+3. Abra `index.html` com **Open with Live Server**.
+4. Preencha o perfil e clique em **Analisar compatibilidade**.
 
-## Regra de compatibilidade
+Extensões recomendadas: **Live Server** e, opcionalmente, uma extensão de validação/formatador já utilizada no curso.
 
-Para cada vaga:
+## 12. Checklist RF01–RF15
 
-```text
-compatibilidade =
-(habilidades encontradas / quantidade de requisitos) × 100
-```
+| Requisito | Implementação |
+|---|---|
+| RF01 Perfil | formulário + objeto + classe `Candidato` + experiência |
+| RF02 Catálogo | 4 vagas em `vagas.json`, carregadas via `fetch` |
+| RF03 Compatibilidade | `Vaga.calcularCompatibilidade()` com encontrados/faltantes |
+| RF04 Classificação | `classificarCompatibilidade()` com 80/50/0 |
+| RF05 Melhor + estudo | `encontrarMelhorVaga()` + `gerarRecomendacao()` |
+| RF06 Arrays | `map`, `filter`, `every`, `reduce`, `flatMap` |
+| RF07 POO | `Vaga` + `VagaFrontEnd extends Vaga` + `this` |
+| RF08 Callback + closure | `executarComCallback()` + `criarCalculadoraPeso()`/contador |
+| RF09 HTML/SEO | landmarks, um h1, labels, alt, lang, title, description |
+| RF10 Formulário | `addEventListener`, `preventDefault`, validação e mensagens acessíveis |
+| RF11 DOM | cards com `createElement` + `innerHTML` + `classList` |
+| RF12 Responsivo | mobile-first + Flexbox + media query + unidades fluidas |
+| RF13 Fetch | Promise + async/await + try/catch + response.ok + carregando/vazio/erro |
+| RF14 LocalStorage | set/get + JSON.stringify/parse + tratamento de null |
+| RF15 Módulos ES | `main.js`, `motor.js`, `ui.js`, `dados.js` com import/export |
 
-Exemplo:
+## 13. Git e GitHub
 
-```text
-4 habilidades encontradas
-5 requisitos
+O projeto foi organizado com `main`, `develop` e branches de funcionalidade. O histórico disponível neste repositório foi reconstruído em 03/10/2026 a partir das versões reais do projeto que foram desenvolvidas ao longo do trabalho. As datas dos commits representam essa organização do repositório e não devem ser interpretadas como datas originais de desenvolvimento.
 
-4 / 5 × 100 = 80%
-```
-
-As classificações seguem as faixas solicitadas:
-
-- 80% a 100% — Alta compatibilidade
-- 50% a 79% — Média compatibilidade
-- 0% a 49% — Baixa compatibilidade
-
-## Recomendação de estudo
-
-A aplicação identifica as habilidades faltantes e conta em quantas vagas cada habilidade aparece como requisito.
-
-As habilidades faltantes que aparecem com maior frequência recebem prioridade na recomendação.
-
-## POO
-
-O motor possui:
-
-- `Vaga`, com construtor, atributos e métodos;
-- `VagaFrontEnd`, que herda de `Vaga`;
-- `this` para acessar atributos da própria instância;
-- sobrescrita do método `obterRotulo()` na subclasse.
-
-A herança representa uma especialização do modelo geral de vaga para o domínio Front-End.
-
-## Métodos de array
-
-O projeto utiliza vários métodos:
-
-- `map()` para transformar dados do JSON em instâncias e gerar resultados;
-- `filter()` para separar habilidades encontradas e faltantes;
-- `reduce()` para encontrar a melhor vaga e contabilizar habilidades;
-- `flatMap()` e `sort()` na recomendação de estudo.
-
-## Callback e closure
-
-A função `executarComCallback()` recebe outra função como argumento e executa essa função para cada resultado.
-
-A função `criarContadorAnalises()` utiliza closure para preservar internamente a quantidade de análises realizadas durante a sessão.
-
-## Fetch e estados
-
-O catálogo é carregado de `assets/data/vagas.json` por `fetch`.
-
-São tratados:
-
-- carregando;
-- sucesso;
-- catálogo vazio;
-- erro de carregamento.
-
-## LocalStorage
-
-O perfil é salvo usando:
-
-```javascript
-JSON.stringify()
-```
-
-e recuperado usando:
-
-```javascript
-JSON.parse()
-```
-
-A primeira visita é tratada quando `localStorage.getItem()` retorna `null`.
-
-Nenhum dado sensível é armazenado.
-
-## HTML, acessibilidade e SEO
-
-A página utiliza:
-
-- `header`, `nav`, `main`, `section`, `article` e `footer`;
-- um único `h1`;
-- hierarquia de títulos;
-- `label` associado aos campos;
-- `lang="pt-BR"`;
-- imagem com `alt`;
-- mensagens de erro acessíveis;
-- `role="status"` e `aria-live`;
-- foco visível;
-- `title`;
-- `meta description`.
-
-## Responsividade
-
-O layout utiliza Flexbox, unidades relativas, `clamp()`, `max-width`, `flex-wrap` e media queries.
-
-A abordagem é mobile-first e deve ser testada no modo responsivo do DevTools.
-
-## Arquitetura cliente-servidor
-
-Mesmo sendo uma aplicação estática, o projeto simula a comunicação cliente-servidor por meio do `fetch`.
-
-O navegador atua como cliente e solicita o arquivo `vagas.json`. O `fetch` retorna uma Promise, e o `async/await` permite aguardar a resposta antes de transformar os dados e executar a análise.
-
-Em uma aplicação real, o arquivo JSON poderia ser substituído por uma API.
-
-## Módulos
-
-O JavaScript foi separado em:
-
-- `motor.js`: regras de negócio, classes e cálculo;
-- `dados.js`: `fetch` e persistência;
-- `ui.js`: DOM, formulário e renderização;
-- `main.js`: ponto de entrada e orquestração.
-
-## Git e GitHub
-
-Estratégia prevista:
+Estrutura adotada:
 
 ```text
 main
 └── develop
-    ├── feature/estrutura-inicial
-    ├── feature/motor-skillmatch
-    ├── feature/formulario
-    ├── feature/renderizacao
-    ├── feature/fetch-localstorage
-    ├── feature/responsividade
-    └── feature/documentacao
+    ├── feature/motor-compatibilidade
+    ├── feature/dados-persistencia
+    ├── feature/interface-formulario
+    ├── feature/qualidade-final
+    ├── feature/experiencia-desempate
+    ├── feature/tema-filtros
+    └── feature/documentacao-entrega
 ```
 
-As feature branches são criadas a partir de `develop`, integradas em `develop` e, ao final, `develop` é integrado em `main`.
+O resultado final foi integrado em `main`.
 
-## Kanban
+## 14. Kanban
 
-O quadro deve conter as colunas:
+O arquivo `planejamento/tarefas-kanban.md` registra o planejamento e o estado das tarefas. Para a entrega, publique esse quadro no Trello, GitHub Projects ou ferramenta equivalente e coloque o link real abaixo.
 
-- Backlog
-- A Fazer
-- Em Andamento
-- Concluído
+**Link do Kanban:** `COLE_AQUI_O_LINK_DO_TRELLO_OU_GITHUB_PROJECTS`
 
-Cada funcionalidade importante do projeto deve possuir um cartão correspondente.
+## 15. Vídeo
 
-## Vídeo
+Prepare um vídeo de até 7 minutos apresentando o objetivo, a execução da aplicação, as principais funcionalidades, a organização das tarefas, o uso de branches e possíveis melhorias.
 
-O vídeo de apresentação deve demonstrar:
+**Link do vídeo:** `COLE_AQUI_O_LINK_DO_VIDEO`
 
-1. objetivo do sistema;
-2. execução da aplicação;
-3. como executar o projeto;
-4. organização das tarefas;
-5. branches utilizadas;
-6. pontos que ainda poderiam ser melhorados;
-7. uso de IA e validações realizadas.
+## 16. GitHub e AVA
 
-**Link do vídeo:** inserir após a publicação.
+**Repositório:** `COLE_AQUI_O_LINK_DO_GITHUB`
 
-## Melhorias futuras
+Após publicar o repositório e o vídeo, atualize os links acima e faça a submissão no AVA.
 
-Possíveis evoluções:
+## 17. Uso de IA
 
-- filtro e ordenação das vagas;
+A IA foi usada como apoio para revisar a estrutura, transportar a lógica do Mini-Projeto para a aplicação web e conferir a implementação. O estudante deve revisar, testar e conseguir explicar o código. No vídeo, descreva de forma transparente onde a IA foi utilizada e quais partes foram revisadas.
+
+## 18. Melhorias futuras
+
+- filtro/ordenação por modalidade, salário ou compatibilidade;
 - tema claro/escuro persistido;
 - deploy no GitHub Pages;
-- integração com uma API real de vagas;
-- testes automatizados.
+- testes automatizados quando compatíveis com as ferramentas estudadas.
 
-## Uso de IA
+## 19. Checklist antes de entregar
 
-A IA foi utilizada como apoio ao desenvolvimento e revisão da solução. Cada trecho gerado deve ser executado, revisado e compreendido antes de ser incorporado ao projeto, conforme orientação do enunciado.
+- [ ] Testei no Live Server.
+- [ ] Testei o formulário e as mensagens de erro.
+- [ ] Testei carregando, vazio e erro do catálogo.
+- [ ] Testei o localStorage e a primeira visita.
+- [ ] Testei no modo responsivo do DevTools.
+- [ ] Rodei Lighthouse para acessibilidade/SEO.
+- [ ] Criei `develop` e feature branches.
+- [ ] Fiz commits descritivos e mergeei o resultado na `main`.
+- [ ] Criei/publicei o Kanban e atualizei os cartões.
+- [ ] Gravei o vídeo de até 7 minutos.
+- [ ] Coloquei os três links no README e no AVA.
+- [ ] Conferi que não há React, TypeScript, build, back-end ou CSS Grid.
