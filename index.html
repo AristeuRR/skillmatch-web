@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="SkillMatch: análise de compatibilidade entre perfil profissional e vagas de desenvolvimento Front-End.">
+    <meta name="author" content="Aristeu Ricardo Ribeiro">
+    <title>SkillMatch | Compatibilidade com vagas Front-End</title>
+    <link rel="stylesheet" href="./assets/styles/index.style.css">
+</head>
+<body>
+    <a class="skip-link" href="#conteudo">Pular para o conteúdo principal</a>
+
+    <header class="site-header">
+        <div class="container header-content">
+            <a class="brand" href="/" aria-label="SkillMatch - página inicial">
+                <img src="./assets/img/logo.svg" alt="Logo SkillMatch">
+                <span>SkillMatch</span>
+            </a>
+
+            <nav aria-label="Navegação principal">
+                <a href="#perfil">Meu perfil</a>
+                <a href="#vagas">Vagas</a>
+                <a href="#recomendacao">Recomendação</a>
+            </nav>
+        </div>
+    </header>
+
+    <main id="conteudo">
+        <section class="hero" aria-labelledby="titulo-principal">
+            <div class="container hero-content">
+                <div>
+                    <p class="eyebrow">ANÁLISE DE PERFIL PROFISSIONAL</p>
+                    <h1 id="titulo-principal">Encontre as vagas mais compatíveis com suas habilidades.</h1>
+                    <p class="hero-text">
+                        Informe seu perfil, analise as oportunidades e descubra quais competências
+                        podem aumentar sua compatibilidade.
+                    </p>
+                    <a class="button button-primary" href="#perfil">Analisar meu perfil</a>
+                </div>
+                <div class="hero-card" aria-label="Resumo do funcionamento">
+                    <strong>Como funciona?</strong>
+                    <ol>
+                        <li>Você informa suas habilidades.</li>
+                        <li>O sistema carrega as vagas.</li>
+                        <li>O motor calcula a compatibilidade.</li>
+                        <li>Você recebe uma recomendação de estudo.</li>
+                    </ol>
+                </div>
+            </div>
+        </section>
+
+        <section id="perfil" class="section" aria-labelledby="titulo-perfil">
+            <div class="container">
+                <div class="section-heading">
+                    <p class="eyebrow">SEU PERFIL</p>
+                    <h2 id="titulo-perfil">Conte um pouco sobre você</h2>
+                    <p>Os dados ficam salvos somente neste navegador para facilitar uma próxima análise.</p>
+                </div>
+
+                <form id="perfil-form" class="profile-form" novalidate>
+                    <div class="field">
+                        <label for="nome">Nome completo</label>
+                        <input id="nome" name="nome" type="text" autocomplete="name" required
+                            aria-describedby="nome-erro">
+                        <p id="nome-erro" class="field-error" role="alert"></p>
+                    </div>
+
+                    <div class="field">
+                        <label for="area">Área de interesse</label>
+                        <input id="area" name="area" type="text" placeholder="Ex.: Front-End Júnior"
+                            required aria-describedby="area-erro">
+                        <p id="area-erro" class="field-error" role="alert"></p>
+                    </div>
+
+                    <div class="field">
+                        <label for="experiencia">Tempo de experiência (anos)</label>
+                        <input id="experiencia" name="experiencia" type="number" min="0" step="0.5"
+                            required aria-describedby="experiencia-erro">
+                        <p id="experiencia-erro" class="field-error" role="alert"></p>
+                    </div>
+
+                    <fieldset class="skills-fieldset">
+                        <legend>Habilidades</legend>
+                        <p class="form-help">Selecione as tecnologias que você domina atualmente.</p>
+
+                        <div id="habilidades" class="skills-list">
+                            <label class="skill-option"><input type="checkbox" name="habilidade" value="JavaScript"> JavaScript</label>
+                            <label class="skill-option"><input type="checkbox" name="habilidade" value="HTML5"> HTML5</label>
+                            <label class="skill-option"><input type="checkbox" name="habilidade" value="CSS3"> CSS3</label>
+                            <label class="skill-option"><input type="checkbox" name="habilidade" value="Git"> Git</label>
+                            <label class="skill-option"><input type="checkbox" name="habilidade" value="GitHub"> GitHub</label>
+                            <label class="skill-option"><input type="checkbox" name="habilidade" value="React"> React</label>
+                            <label class="skill-option"><input type="checkbox" name="habilidade" value="TypeScript"> TypeScript</label>
+                            <label class="skill-option"><input type="checkbox" name="habilidade" value="Next.js"> Next.js</label>
+                            <label class="skill-option"><input type="checkbox" name="habilidade" value="APIs REST"> APIs REST</label>
+                            <label class="skill-option"><input type="checkbox" name="habilidade" value="UX/UI"> UX/UI</label>
+                        </div>
+                        <p id="habilidades-erro" class="field-error" role="alert"></p>
+                    </fieldset>
+
+                    <div class="form-actions">
+                        <button class="button button-primary" type="submit">Analisar vagas</button>
+                        <button class="button button-secondary" type="button" id="limpar-perfil">Limpar perfil salvo</button>
+                    </div>
+
+                    <p id="form-status" class="form-status" role="status" aria-live="polite"></p>
+                </form>
+            </div>
+        </section>
+
+        <section id="vagas" class="section section-alt" aria-labelledby="titulo-vagas">
+            <div class="container">
+                <div class="section-heading">
+                    <p class="eyebrow">RESULTADOS</p>
+                    <h2 id="titulo-vagas">Compatibilidade com as vagas</h2>
+                    <p id="resultado-resumo">Preencha seu perfil para iniciar uma análise.</p>
+                </div>
+
+                <div id="estado-vagas" class="status-box" role="status" aria-live="polite">
+                    Aguardando análise.
+                </div>
+
+                <div id="vagas-lista" class="jobs-list" aria-live="polite"></div>
+            </div>
+        </section>
+
+        <section id="recomendacao" class="section" aria-labelledby="titulo-recomendacao">
+            <div class="container">
+                <div class="section-heading">
+                    <p class="eyebrow">PRÓXIMO PASSO</p>
+                    <h2 id="titulo-recomendacao">Recomendação de estudo</h2>
+                </div>
+
+                <article id="melhor-vaga" class="recommendation-card">
+                    <p>Faça uma análise para receber sua recomendação.</p>
+                </article>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container footer-content">
+            <p>&copy; 2026 SkillMatch. Projeto acadêmico em JavaScript puro.</p>
+            <p>HTML · CSS · JavaScript · ES Modules · Fetch · LocalStorage</p>
+        </div>
+    </footer>
+
+    <script type="module" src="./assets/scripts/main.js"></script>
+</body>
+</html>
