@@ -154,17 +154,12 @@ O resultado final foi integrado em `main`.
 
 ## 13. Vídeo
 
-Prepare um vídeo de até 7 minutos apresentando o objetivo, a execução da aplicação, as principais funcionalidades, a organização das tarefas, a evolução por branches e possíveis melhorias.
-
-**Link do vídeo:** `COLE_AQUI_O_LINK_DO_VIDEO`
+**Link do vídeo:** https://youtu.be/FWL18lspy0Y
 
 ## 14. Publicação
 
-**Repositório:** `COLE_AQUI_O_LINK_DO_GITHUB`
+**Repositório:**  https://github.com/AristeuRR/skillmatch-web
 
-## 15. Melhorias futuras
+ ## 15  Link do Kanban/Trello
 
-- filtros e ordenação por modalidade, salário ou compatibilidade;
-- tema claro/escuro persistido;
-- publicação no GitHub Pages;
-- testes automatizados quando compatíveis com as ferramentas estudadas.
+ https://trello.com/b/mkhCQsim/skillmatch-web-projeto-final
